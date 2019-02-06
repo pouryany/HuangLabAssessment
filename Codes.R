@@ -324,6 +324,14 @@ summary(boot, what = "se")
 modTot <- kmeans(scoreTot, 4)
 
 
+#
+#
+#
+## Listing immuno proteins from GO
+im.tab <- read.csv("~/Downloads/select_immunoprotein2", sep = "\t")
+head(im.tab)
+
+
 
 library(ggbiplot)
 set.seed(1)
