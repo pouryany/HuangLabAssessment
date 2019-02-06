@@ -39,12 +39,20 @@ head(expression)
 dim(expression)
 
 
+
+
 expression2 <- expression[,intersect(colnames(expression),
                                      colnames(mutated))]
 
+color.mute <-  rep("blue", ncol(expression2))
+color.mute[colnames(expression2) %in%
+               names(mutated["TP53",]
+                     [mutated["TP53",] ==1])] <- "red"
 
-types <- rep("No_53",ncol(expression2))
-types[colnames(expression2) %in%
+plotMDS(expression2, col = color.mute)
+
+types <- rep("No_53",ncol(expression))
+types[colnames(expression) %in%
           names(which(mutated["TP53",] == 1))] <- "TP53"
 
 # Some filtering
