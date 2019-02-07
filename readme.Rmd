@@ -5,6 +5,100 @@ date: "2/1/2019"
 output: "github_document"
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 ## Project overview
 
-TBA
+## Initial inspection
+
+We have three sets of files that contain mutations profiles, mRNA expressions, and relative protein expressions. The first phase to insepct and pre-process the data sources. For this, we run some standard procedures. But first, some library loading. 
+
+```{r,  message=FALSE , warning = FALSE}
+rm(list = ls())
+library(limma)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(CADIA)
+
+# Parsing and inspecting the Mutation, Expression, and Protein Data
+
+mutated    <- read.csv("BRCA_MC3_SOMATIC_formatted_amino_acid.txt",
+                       stringsAsFactors = F, sep = "\t", row.names = 1)
+expression <- read.csv("BRCA_mRNA_formatted_normalized.txt",
+                       stringsAsFactors = F, sep = "\t", row.names = 1)
+proteins   <- read.csv("BRCA_PRO_formatted_normalized.txt",
+                       stringsAsFactors = F, sep = "\t", row.names = 1)
+
+
+
+head(mutated[,1:5],1)
+head(proteins[,1:5],3)
+head(expression[,1:5],1)
+
+```
+
+# Mutation data initial inspection 
+
+On the mutations data, we have a charachter matrix with either entries that are 'wt' or specific mutations. Each entry might have a number of mutations and the mutations of a single gene might be happening in different sites. We make a simplifying assumption that a mutation affect the protein level activities in the same manor regardless of number of mutated sites. We changes the mutation matrix into a binary matrix where 1 indicates incidence of a mutation at a specific gene/sample pair and zero otherwise.
+
+```{r}
+    dim(mutated)
+    sum(is.na(mutated))
+    
+    mutated[mutated != "wt"] <- 1
+    mutated[mutated == "wt"] <- 0
+    
+    mutated <- as.data.frame(mutated)
+    mutated <- data.matrix(mutated)
+```
+
+
+TP53 and PI3KCA  also the most frequent mutations across the samples. Just for one quick inspection, let's do some clustering on the mutation matrix and see what comes out. Why doing clustering? maybe finding subgroups that we can further contrast. I am not sure where mutations happen together or correlate, but maybe clusters together can bring some higher level descriptions.
+
+
+```{r}
+    heatmap(mutated, Colv=F,scale ="none")
+    d <- dist((mutated) )
+    clusters <- hclust(d)
+    plot(clusters,cex=0.5)
+```
+
+Unsprisingly, we can't get much out this heatmap the way it is. In later analysis we will use subgroups of frequent mutations. For now, we will move on to investigate the expression data.
+
+
+# mRNA expression intitial inspection
+
+Just inspecting the data distribution. We know that the data is normalized. So, there shouldn't be any problems here. Distributions should align. Just to verify.
+   
+
+```{r}
+    plotDensities(expression, legend = F)
+    boxplot(expression)
+    plotMD(expression,column = 1)
+    abline(h=0,col="red")
+```
+
+```{r}
+    means  <- apply(expression, 1, mean)
+    vars   <- apply(expression, 1, var)
+    sds    <- apply(expression, 1, sd)
+    plot(means,vars)
+    abline(h=10,col="red")
+    expression2 <- expression[vars !=0 & means !=0,]
+    dim(expression)
+    dim(expression2)
+
+```
+
+ We see some reduction becasue of zero variance genes
+    
+```{r}
+   plotDensities(vars)
+```
+
+Somewhere in (2,3) the second derivative of the density plot/CDF of variance becomes positive.let's just pick that as the variance threshold. Let's do some preliminary analysis of mRNA Expressions. Let's just the bottom threshold for highly variable genes. 
+
+
+
