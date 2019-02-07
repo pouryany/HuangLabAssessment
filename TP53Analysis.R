@@ -100,8 +100,8 @@ tT      <- topTable(fit2, adjust="fdr", sort.by="B", number=Inf)
 
 head(tT)
 
-tT.deGenes <- tT[tT$adj.P.Val < 0.05, ]
-tT.deGenes <- tT.deGenes[abs(tT.deGenes$logFC) >0,]
+tT.deGenes <- tT[tT$adj.P.Val < 0.005, ]
+tT.deGenes <- tT.deGenes[abs(tT.deGenes$logFC) >1,]
 
 nrow(tT.deGenes)
 
@@ -173,7 +173,7 @@ sum(is.na(prot.means))
 sum(is.na(prot.vars))
 
 
-proteins2  <- proteins[!(missings > 30),]
+proteins2  <- proteins[!(missings > 0),]
 
 
 
@@ -295,7 +295,7 @@ cl.col$labels %in%  names(mutated["TP53",]
 
 library("gplots")
 
-heatmap.2(data.matrix(mRNA.fitlered), scale = "none", col = coul,
+heatmap.2(data.matrix(prot.fitlered), scale = "none", col = coul,
         ColSideColors=my_col)
 
 ## Some PCA plot
@@ -304,21 +304,21 @@ plot(seq.pca,type = "l")
 
 # The plot tells us after the 5th PC we can't get much additional variance explained
 
-scoreTot <- seq.pca$x[,1:4]
+scoreTot <- seq.pca$x[,1:5]
 # Let's work on 5 PCs
 
 
 library(mclust)
 
-BIC <- mclustBIC(scoreTot)
+BIC <- mclustBIC(t(mRNA.fitlered))
 plot(BIC)
 summary(BIC)
 
-ICL <- mclustICL(scoreTot)
+ICL <- mclustICL(t(mRNA.fitlered))
 summary(ICL)
 
 
-mod <- Mclust(scoreTot, G = 2, modelName = "EVE")
+mod <- Mclust(scoreTot, G = 3, modelName = "VEI")
 summary(mod, parameters = TRUE)
 
 plot(mod, what = "classification", main = FALSE)
@@ -326,7 +326,7 @@ boot <- MclustBootstrap(mod, nboot = 999, type = "bs")
 summary(boot, what = "se")
 
 
-modTot <- kmeans(scoreTot, 2)
+modTot <- kmeans(scoreTot, 3)
 
 
 
@@ -341,13 +341,21 @@ g <- ggbiplot(seq.pca , obs.scale = 1, var.scale =1 , var.axes = F,
 
 library(GENIE3)
 
-weightMat <- GENIE3(data.matrix(mRNA.fitlered))
+weightMat <- GENIE3(data.matrix(prot.fitlered))
 hist(weightMat)
-weightMat[weightMat < 0.03] <- 0
-weightMat[weightMat > 0.03] <- 1
+weightMat[weightMat < 0.1] <- 0
+weightMat[weightMat > 0.1] <- 1
 
 
 plot(graph.adjacency(weightMat),layout= layout.circle(graph.adjacency(arac.net)))
 
+library(GGally)
+apop.network <- network::as.network.matrix(weightMat)
+set.seed(2)
+ras.plot <- ggnet2(apop.network, node.label = colnames(weightMat), arrow.size = 5,label.size = 5,label.trim = T,arrow.gap = 0.01915,
+                   mode = "fruchtermanreingold", layout.par = list(cell.jitter =0.001, niter = 1000 )) +
+    theme(legend.position="none",
+          legend.title=element_blank())
 
+??igraph::plot
 
