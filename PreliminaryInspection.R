@@ -128,7 +128,7 @@ prot.polish <- medpolish(proteins2, eps = 0.01, maxiter = 10,
 plotMD(prot.polish$residuals,column = 60)
 boxplot(prot.polish$residuals)
 abline(h=0,col="red")
-proteins3 <- proteins2
+proteins3 <- prot.polish$residuals
 
 
 # It seems that some sort further normalization such as median polish would 
