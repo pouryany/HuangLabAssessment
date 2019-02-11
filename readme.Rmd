@@ -47,7 +47,7 @@ knitr::include_graphics("images/PCAmRNA.jpg")
 ```
 
 ```{r, echo=FALSE, fig.cap="Figure 3", out.width = '40%'}
-knitr::include_graphics("images/CombinedNetworkGENIE3.pdf")
+knitr::include_graphics("images/CombinedNetworkGENIE3.jpg")
 ```
 
 
