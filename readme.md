@@ -24,18 +24,18 @@ Pourya Naderi Yeganeh
 Project organization
 ====================
 
-This document/repository contains my response to Huang Lab assessment project. The github repository contains codes and figures related to the project. In the rest of this document I will first provide a project summary/abstract, as requested in the project describtion. Then, I will continue by a walk through of my analysis of the project.
+This document/repository contains my response to Huang Lab assessment project. The github repository contains codes and figures related to the project. In the rest of this document I will first provide a project summary/abstract, as requested in the project description. Then, I will continue by a walk through of my analysis of the project.
 
 Project overview (Short Summary)
 ================================
 
 ### Abstract
 
-In this study, we investigate the multi-omics landspace of immunoproteins and cytokines of 74 breast cancer tumors by contrasting mutation, protein expression and mRNA expression data. Our analysis of mRNA expression and protein expression profiles shows four distinct subtypes of cancer tumors from the variational patterns of known immunnoproteins. The biological function associations of the subtypes vary based-on their molecular patterns with known pathways that indicate immune response, cell signaling, and cellular migration. Through differential expression analysis, we identifies a novel TP53 associated interaction network of cytokines and immunoproteins. The network encompasses known molecular that are annotated in biological databses as well as novel interactions that remain to be validated.
+In this study, we investigate the multi-omics landscape of immunoproteins and cytokines of 74 breast cancer tumors by contrasting mutation, protein expression and mRNA expression data. Our analysis of mRNA expression and protein expression profiles shows four distinct subtypes of cancer tumors from the variational patterns of known immunnoproteins. The biological function associations of the subtypes vary based-on their molecular patterns with known pathways that indicate immune response, cell signaling, and cellular migration. Through differential expression analysis, we identifies a novel TP53 associated interaction network of cytokines and immunoproteins. The network encompasses known molecular that are annotated in biological databses as well as novel interactions that remain to be validated.
 
 ### Material and methods
 
-We used collection of processed and normalized breast cancer samples of mRNA expressions (n = 74), protein expressions (n = 77), and mutations (n = 73). After initial quality control, we used a substed of differentially variable mRNAs (DVM) by variance filtering. We used Causal Disturbance Analysis (CADIA) for pathway enrichment analysis of DVM to extract biological insight. DVMs were then filtered to an a priori set of annotated immune-related proteins. We then used the intersection of the filtered DVMs and the protein expression signals for identifying the molecular subtypes of the tumor samples. The final set of probes were determined by selecting the gene/protein pairs with statistically significant correlation between their two expression profiles (113 mRNAs).
+We used a collection of processed and normalized breast cancer samples of mRNA expressions (n = 74), protein expressions (n = 77), and mutations (n = 73). After initial quality control, we used a substed of differentially variable mRNAs (DVM) by variance filtering. We used Causal Disturbance Analysis (CADIA) for pathway enrichment analysis of DVM to extract biological insight. DVMs were then filtered to an a priori set of annotated immune-related proteins. We then used the intersection of the filtered DVMs and the protein expression signals for identifying the molecular subtypes of the tumor samples. The final set of probes were determined by selecting the gene/protein pairs with statistically significant correlation between their two expression profiles (113 mRNAs).
 
 We used unsupervised Gaussian Mixture Models (GMM) for identifying distinct tumor subtypes. Bayesian Information Criterion (BIC) was used to determine the optimal number of clusters for GMM. We then used two approaches, hierarchical clustering and WGCNA modules, for identifying probe subgroups. The functional association and interpretation of mRNA and protein probe clusters was done using CADIA pathway analysis.
 
@@ -43,7 +43,7 @@ On a separate analysis, we contrasted the profiles of mRNA expression between TP
 
 ### Results and discussion
 
-Model-based clustering using GMM identifies four subgroups in each of the mRNA and protein samples. For mRNA data, hierachical clustering identifies three class of coexpression of mRNAs. Each subtype shows some distinctive pattern acroos the classes that are associated (Figure 1). 1- Immune response through T cell receptor pathways and Th17 cell differentiation pathway (Red row cluster, Fig.1). 2- Cell singaling through Wnt, Calcium, and Phospholipase D singaling pathways (Blue row cluster, Fig.1). 3- Motility and migration through ECM-receptor interaction and focal adhesion (Green row cluster, Fig.1). Figure 1 shows the heatmap of the mRNA data where the rows represent gene signals and the columns represent the sample. The figure shows a strong overlap between one pair of sample clusters from proteins and mRNA data that corresponds to immune response subclass of probes. Additional analysis using WGCNA also shows the overlap between the functional association of probe sub classes in mRNA and protein data. Figure 2 shows the two dimensional Prcinpical Component map of the samples and the subtypes. using a three dimensional map (results not shown in summary) further highlights the distinction between the mRNA infered subtypes in both mRNA and protein data.
+Model-based clustering using GMM identifies four subgroups in each of the mRNA and protein samples. For mRNA data, hierachical clustering identifies three class of coexpression of mRNAs. Each subtype shows some distinctive pattern acroos the classes that are associated (Figure 1). 1- Immune response through T cell receptor pathways and Th17 cell differentiation pathway (Red row cluster, Fig.1). 2- Cell singaling through Wnt, Calcium, and Phospholipase D singaling pathways (Blue row cluster, Fig.1). 3- Motility and migration through ECM-receptor interaction and focal adhesion (Green row cluster, Fig.1). Figure 1 shows the heatmap of the mRNA data where the rows represent gene signals and the columns represent the sample. The figure shows a strong overlap between one pair of sample clusters from proteins and mRNA data that corresponds to immune response subclass of probes. Additional analysis using WGCNA also shows the overlap between the functional association of probe sub classes in mRNA and protein data. Figure 2 shows the two dimensional Principal Component map of the samples and the subtypes. Using a three dimensional map (results not shown in summary) further highlights the distinction between the mRNA infered subtypes in both mRNA and protein data.
 
 The TP53 associated differential expression analysis idetifies 17 mRNAs with correlated protein expressions. A query of STRING-DB yeilds nine known interactions for the 17 genes. GENIE3 analysis of coexpression network identifies an interaction map with several interactions including eight out of the nine known interactions. Figure 3 shows the inferred interaction network of TP53 mutation associated differential expressions.
 
@@ -57,7 +57,7 @@ Figure 1
 Figure 2
 </p>
 
-<img src="images/CombinedNetworkGENIE3.pdf" alt="Figure 3" width="50%" />
+<img src="images/CombinedNetworkGENIE3.jpg" alt="Figure 3" width="40%" />
 <p class="caption">
 Figure 3
 </p>

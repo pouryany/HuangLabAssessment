@@ -3,14 +3,12 @@ title: "Huang Lab Assessment Project"
 author: "Pourya Naderi Yeganeh"
 date: "2/1/2019"
 output: 
-    pdf_document:
-        toc: true
     github_document:
         toc: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,fig.width=8, fig.height=6)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Project organization
@@ -515,6 +513,7 @@ heatmap3(mRNA.mat,Colv = NA,Rowv = NA,showColDendro = F,showRowDendro = F,
           ColSideColors=my_col)
 
 ```
+
 
 
 It is interesting to see the underlying associated functions of the row clusters. I will use CADIA again to interpret the cluster functions.
