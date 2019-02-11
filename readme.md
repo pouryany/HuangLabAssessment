@@ -3,7 +3,11 @@ Huang Lab Assessment Project
 Pourya Naderi Yeganeh
 2/1/2019
 
--   [Project overview](#project-overview)
+-   [Project organization](#project-organization)
+-   [Project overview (Short Summary)](#project-overview-short-summary)
+    -   [Abstract](#abstract)
+    -   [Material and methods](#material-and-methods)
+    -   [Results and discussion](#results-and-discussion)
 -   [Initial inspection](#initial-inspection)
     -   [Mutation data initial inspection](#mutation-data-initial-inspection)
     -   [mRNA expression intitial inspection](#mrna-expression-intitial-inspection)
@@ -11,19 +15,57 @@ Pourya Naderi Yeganeh
 -   [Exploratory Analysis](#exploratory-analysis)
     -   [Data and library import](#data-and-library-import)
     -   [Differentially variable genes](#differentially-variable-genes)
-    -   [Cluster analysis.](#cluster-analysis.)
+    -   [Cluster analysis](#cluster-analysis)
     -   [Running WGCNA Analysis](#running-wgcna-analysis)
     -   [Principal Component Analysis](#principal-component-analysis)
 -   [TP53 Analysis](#tp53-analysis)
     -   [Network Inference](#network-inference)
 
-Project overview
-----------------
+Project organization
+====================
+
+This document/repository contains my response to Huang Lab assessment project. The github repository contains codes and figures related to the project. In the rest of this document I will first provide a project summary/abstract, as requested in the project describtion. Then, I will continue by a walk through of my analysis of the project.
+
+Project overview (Short Summary)
+================================
+
+### Abstract
+
+In this study, we investigate the multi-omics landspace of immunoproteins and cytokines of 74 breast cancer tumors by contrasting mutation, protein expression and mRNA expression data. Our analysis of mRNA expression and protein expression profiles shows four distinct subtypes of cancer tumors from the variational patterns of known immunnoproteins. The biological function associations of the subtypes vary based-on their molecular patterns with known pathways that indicate immune response, cell signaling, and cellular migration. Through differential expression analysis, we identifies a novel TP53 associated interaction network of cytokines and immunoproteins. The network encompasses known molecular that are annotated in biological databses as well as novel interactions that remain to be validated.
+
+### Material and methods
+
+We used collection of processed and normalized breast cancer samples of mRNA expressions (n = 74), protein expressions (n = 77), and mutations (n = 73). After initial quality control, we used a substed of differentially variable mRNAs (DVM) by variance filtering. We used Causal Disturbance Analysis (CADIA) for pathway enrichment analysis of DVM to extract biological insight. DVMs were then filtered to an a priori set of annotated immune-related proteins. We then used the intersection of the filtered DVMs and the protein expression signals for identifying the molecular subtypes of the tumor samples. The final set of probes were determined by selecting the gene/protein pairs with statistically significant correlation between their two expression profiles (113 mRNAs).
+
+We used unsupervised Gaussian Mixture Models (GMM) for identifying distinct tumor subtypes. Bayesian Information Criterion (BIC) was used to determine the optimal number of clusters for GMM. We then used two approaches, hierarchical clustering and WGCNA modules, for identifying probe subgroups. The functional association and interpretation of mRNA and protein probe clusters was done using CADIA pathway analysis.
+
+On a separate analysis, we contrasted the profiles of mRNA expression between TP53 mutated and non-TP53 samples. Analysis of Variance identifies 308 differentially expressed genes (DEG) with fold-change magnitde more than 1 and Benjamini Hochberg Adjusted p-value &lt;0.005. We filtered the DEG using an apriori list of cytokines and immunoproteins retreived from AmiGO. We then subsetted the filtered DEG to those with with measured protein expressions with statistically significant correlations. The molecular network of subsetted DEG was derived using GENIE3 for inferring interactions. We dervied the interaction network using mRNA data and protein data separately and report the overlap of the two networks.
+
+### Results and discussion
+
+Model-based clustering using GMM identifies four subgroups in each of the mRNA and protein samples. For mRNA data, hierachical clustering identifies three class of coexpression of mRNAs. Each subtype shows some distinctive pattern acroos the classes that are associated (Figure 1). 1- Immune response through T cell receptor pathways and Th17 cell differentiation pathway (Red row cluster, Fig.1). 2- Cell singaling through Wnt, Calcium, and Phospholipase D singaling pathways (Blue row cluster, Fig.1). 3- Motility and migration through ECM-receptor interaction and focal adhesion (Green row cluster, Fig.1). Figure 1 shows the heatmap of the mRNA data where the rows represent gene signals and the columns represent the sample. The figure shows a strong overlap between one pair of sample clusters from proteins and mRNA data that corresponds to immune response subclass of probes. Additional analysis using WGCNA also shows the overlap between the functional association of probe sub classes in mRNA and protein data. Figure 2 shows the two dimensional Prcinpical Component map of the samples and the subtypes. using a three dimensional map (results not shown in summary) further highlights the distinction between the mRNA infered subtypes in both mRNA and protein data.
+
+The TP53 associated differential expression analysis idetifies 17 mRNAs with correlated protein expressions. A query of STRING-DB yeilds nine known interactions for the 17 genes. GENIE3 analysis of coexpression network identifies an interaction map with several interactions including eight out of the nine known interactions. Figure 3 shows the inferred interaction network of TP53 mutation associated differential expressions.
+
+<img src="images/Model-basedmRNACluster.jpg" alt="Figure 1" width="50%" />
+<p class="caption">
+Figure 1
+</p>
+
+<img src="images/PCAmRNA.jpg" alt="Figure 2" width="50%" />
+<p class="caption">
+Figure 2
+</p>
+
+<img src="images/CombinedNetworkGENIE3.pdf" alt="Figure 3" width="50%" />
+<p class="caption">
+Figure 3
+</p>
 
 Initial inspection
 ==================
 
-We have three sets of files that contain mutations profiles, mRNA expressions, and relative protein expressions. The first phase to insepct and pre-process the data sources. For this, we run some standard procedures. But first, some library loading.
+There are three sets of files that contain mutations profiles, mRNA expressions, and relative protein expressions. The first phase to insepct and pre-process the data sources. For this, I will run some standard procedures to investigate the distributions of individual probes as well as overall sample quality. The first step is data/library loading and a quick peak into the data.
 
 ``` r
 rm(list = ls())
@@ -70,7 +112,7 @@ head(expression[,1:5],1)
 Mutation data initial inspection
 --------------------------------
 
-On the mutations data, we have a charachter matrix with either entries that are 'wt' or specific mutations. Each entry might have a number of mutations and the mutations of a single gene might be happening in different sites. We make a simplifying assumption that a mutation affect the protein level activities in the same manor regardless of number of mutated sites. We changes the mutation matrix into a binary matrix where 1 indicates incidence of a mutation at a specific gene/sample pair and zero otherwise.
+In the mutations data, we have a charachter matrix with entries that are either wild type ('wt') or specific mutations. It is possible for an entry to multiple mutations. For simplicity, I will make a simplifying assumption that different mutations of a gene affect the protein activities in the same manor regardless of number of mutated sites. Using this assumption, I will turn the mutation data into a binary matrix where 1 indicates incidence of a mutation at a specific gene/sample pair, and zero otherwise.
 
 ``` r
     dim(mutated)
@@ -90,18 +132,38 @@ On the mutations data, we have a charachter matrix with either entries that are 
     
     mutated <- as.data.frame(mutated)
     mutated <- data.matrix(mutated)
+    rowSums(mutated)
 ```
 
-TP53 and PI3KCA also the most frequent mutations across the samples. Just for one quick inspection, let's do some clustering on the mutation matrix and see what comes out. Why doing clustering? maybe finding subgroups that we can further contrast. I am not sure where mutations happen together or correlate, but maybe clusters together can bring some higher level descriptions.
+    ## ARHGAP35   ARID1A    ARID2   ATF7IP      ATM    BRCA1     CDH1     CHD3 
+    ##        1        2        1        1        2        2        7        1 
+    ##     CHD4     CTCF   DAZAP1      DMD     EGFR     EGR3    EPHA2    EPHA3 
+    ##        2        2        2        1        1        1        1        1 
+    ##    ERBB2    ERBB3     ESR1     FAT1    FGFR2     FLNA    FOXA1    GATA3 
+    ##        4        1        1        1        1        1        1        7 
+    ## HIST1H1C    HUWE1     IDH1    KMT2A    KMT2C     KRAS   MAP2K4   MAP3K1 
+    ##        1        1        1        1        2        2        2        4 
+    ##   MAP3K4    MED12     MGMT     MYH9    NCOR1      NF1    NIPBL    PBRM1 
+    ##        1        1        1        1        4        1        1        2 
+    ##   PDGFRA   PIK3CA   PIK3R1    PLCB4     PTEN   PTPN11    PTPRD    RAD21 
+    ##        2       23        2        1        2        1        2        1 
+    ##     RAF1      RB1     RHOA    RUNX1    SCAF4    SETD2    SF3B1    STAG2 
+    ##        1        1        1        4        1        1        1        2 
+    ##  TBL1XR1     TBX3     TET2   TGFBR2  TNFAIP3     TP53     TSC1     XPO1 
+    ##        1        1        1        1        1       39        1        1 
+    ##    ZFHX3 
+    ##        1
 
-The choice of clustering in this case is hierarchical agglomerative clustering using 1 - spearman correlation as the distance measure and Ward's distance for cluster merging.
+TP53 and PI3KCA are the most frequent mutations across the samples. Just for one quick inspection, let's do some clustering on the mutation matrix and see what comes out. Why doing clustering? maybe finding subgroups that we can further contrast. I am not sure where mutations happen together or correlate, but maybe clusters together can bring some higher level descriptions.
+
+The choice of clustering in this case is hierarchical agglomerative clustering with 1 - spearman correlation as the distance measure and Ward's distance for cluster merging.
 
 ``` r
 heatmap3(mutated,scale ="none",distfun = function(x) as.dist(1 - cor(t(x),
          method = "spearman")), method ="ward.D2")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ``` r
 d <- as.dist(1 - cor((mutated), method = "spearman"))
@@ -109,9 +171,9 @@ clusters <- hclust(d,method ="ward.D2")
 plot(clusters,cex=0.5)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-3-2.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-6-2.png)
 
-Unsprisingly, we can't get much out this heatmap the way it is. The best we can get is to just somewhat group them based on TP53 mutataions. In later analysis we will use subgroups of frequent mutations. For now, we will move on to investigate the expression data.
+Unsprisingly, we can't get much out this heatmap the way it is. The sample clusters are in two groups that are approximately distinct by the TP53 mutations. In an analysis at some later point I will thoroughly investigate the differential profiles associated with TP53 mutations. For now, I will move on to investigate the expression data.
 
 mRNA expression intitial inspection
 -----------------------------------
@@ -122,24 +184,24 @@ Just inspecting the data distribution. We know that the data is normalized. So, 
 plotDensities(expression, legend = F)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
-The distribution of mRNA expressions across different samples align and match.
+The density plot of individual mRNA expressions across different samples align and match. This means that large scale correction are not necessary at this point, e.g. dividing sample expressions or scaling. It is expected that boxplots confirm this pattern,
 
 ``` r
 boxplot(expression)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
-The boxplot also verifies the normalization of the samples as we see relative aligment between the variances and the means of expressions in each sample.
+The boxplot also verifies the normalization of the samples as we see relative aligment between the variances and the means of expressions in each sample. To verify that we have the requirements for differential expression analysis, I will use MD plots.
 
 ``` r
     plotMD(expression,column = 1)
     abline(h=0,col="red")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 MD plot also shows the symmetry of differential expressions of one sample versus the others. The expression data does not need any further large scale normalization at this point.
 
@@ -151,9 +213,9 @@ MD plot also shows the symmetry of differential expressions of one sample versus
     abline(h=10,col="red")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-Just insepcting the relationship between variances and the means of expressions of the genes. We will later use this to select subsets of genes for differentially variable genes analysis. In particular, we will use variance thresholds. Though it is possible to use other metrics such as coefficient of variation. Variance seems to be a good choice because the data is already normalized and the variance alone is a good indicator of changes in individual gene levels.
+Insepcting the relationship between variances and the means of expressions of the genes. We will later use this to select subsets of genes for differentially variable genes analysis. In the first exploratory analysis, I will focus on highly variable genes and use variance thresholds to identify them. This is a suitable choice when the focus is not on identifying the differences between a priori subsets of samples. It is also possible to use other metrics for finding highly variable genes such as coefficient of variation. However, variance itself seems to be a good choice because the data is already normalized and the variance alone is a good indicator of changes in individual gene levels.
 
 ``` r
     expression2 <- expression[vars !=0 & means !=0,]
@@ -168,20 +230,39 @@ Just insepcting the relationship between variances and the means of expressions 
 
     ## [1] 19913    74
 
-For the analysis we exclude the genes with zero mean and zero variance. We see some reduction becasue of zero variance genes.
+For the analysis we exclude the genes with zero mean and zero variance. We see some reduction becasue of zero variance genes. the next step is to identify a variance threshold to identify the differentially variable genes. While it is possible to selected a fixed threshold, e.g. top 500, I will focus on finding the threshold from the data.
 
 ``` r
-   plotDensities(vars)
+    plotDensities(vars)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
-Somewhere in (2,3) the second derivative of the density plot/CDF of variance becomes positive.let's just pick that as the variance threshold. Let's do some preliminary analysis of mRNA Expressions. Let's just the bottom threshold for highly variable genes.
+``` r
+    mean(vars)
+```
+
+    ## [1] 1.252402
+
+``` r
+    sd(vars)
+```
+
+    ## [1] 1.830269
+
+Somewhere in (2,3) the second derivative of the density plot of variance becomes positive. Also, it seems that mean + sd for variances falls close to this range. Based on these observations I will pick a conservative threshold of 2 for the rest of analysis. I will use this baseline variance for selecting highly variable genes in the rest of this exploratory analysis
+
+``` r
+expression2 <- expression[vars > 2,]
+nrow(expression2)
+```
+
+    ## [1] 3740
 
 Protein data inspection
 -----------------------
 
-Moving on proteins. Just a prefiltering step on proteins. As we saw, proteins contains a number of missing points. While it's best to use some sort of imputation, I won't be doing that because I am unfamiliar with this data. Instead, I will just see if I can filter out the missing genes.
+Moving on proteins and prefiltering steps on protein expressions. As we saw, proteins contains a number of missing points. While it's best to use some sort of imputation, I will leave that for future endeavors because I am unfamiliar with this type data. Instead, I will just see if I can filter out the missing genes.
 
 ``` r
 missings   <- apply(proteins, 1, function(X){
@@ -193,7 +274,7 @@ sum(missings > 0)
 
     ## [1] 3628
 
-There are 3628 proteins with missing values. For now lets say no proteins missing from the rest of the analysis. Though this assumption can be extended to some level missing.
+There are 3628 proteins with missing values. For now let's settle that the rest of the analysis we do not want the proteins to have missing values. Again, this assumption can be extended to some level missing.
 
 ``` r
 proteins2   <- proteins
@@ -215,34 +296,34 @@ Just some data inspection. The normalization is described is the handout so we s
 plot(prot.means,prot.vars)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
-The only lession of this plot is that maybe filtering using variance is not the best choice. And that fits the nature of the data since every protein level is normalized by dividing on some baseline expression.
+The lesson of this plot is that maybe filtering using variance is not the best choice. This lesson fits the nature of the data since every protein level is normalized by dividing on some baseline expression rather than cross sample.
 
 ``` r
 plotDensities(proteins2)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
-The density plot shows that even after filtering the proteins with missing values, we still see the original signal distributions to some extent. Each sample in the original data was Z-normalized. Even after filtering we see equal means across the samples in the plot. So the data does not become inconsistent as a result of filtering.
+The density plot shows that even after filtering the proteins with missing values, we still see the patterns of the original signal distributions. Each sample in the original data was Z-normalized. Even after filtering, we see approximately equal means across the samples in the plot. So, the data does not become inconsistent as a result of filtering.
 
 ``` r
 boxplot(proteins2)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
-The boxplot also confirms that the data is not much affected in distribution after the filtering process. Means of the samples remain to be aligned close to zero and the size of the boxes are about the same.
+The boxplot also confirms that the data is not much affected by the filtering process. The means of the samples remain to be aligned and close to zero with the size of the boxes being approximately the same. It would be interesting the behaviour of this data using MD plot.
 
 ``` r
 plotMD(proteins2,column = 60)
 abline(h=0,col="red")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-15-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
-This is so much different from standard MA plot of expression. IDK for now what are the implications. Definitely no two-sample testing. Just as a hunch, let's just see what median polish does. Maybe we can get some further normalization.
+This is so much different from standard MA plot of expression. It is not clear to me for now what can be inferred. Definitely, this plot shows that two-sample testing is perhaps is not a good choice. Also, there is some level of noise the plot, which potentially can be fixed. Just as a hunch, let's just see what median polish does. Maybe we can get some further normalization.
 
 ``` r
 prot.polish <- medpolish(proteins2, eps = 0.01, maxiter = 10,
@@ -256,20 +337,20 @@ prot.polish <- medpolish(proteins2, eps = 0.01, maxiter = 10,
 plotMD(prot.polish$residuals,column = 60)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 ``` r
 boxplot(prot.polish$residuals)
 abline(h=0,col="red")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-16-2.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-20-2.png)
 
 ``` r
 proteins3 <- prot.polish$residuals
 ```
 
-Not surprinsingly median polish seems to smooth the data. We get a better MA plot, less noisy. We also get more aligned boxplots. However, I am not sure of the consequences and the indications of this process. So, I will investigate that some other day in the future. For now, I will just work with the original data.
+Not surprinsingly median polish seems to smooth the data. We get a better MA plot that is less noisy. We also get more aligned boxplots. However, I am not sure of the consequences and the indications of this process. So, I will investigate that some other day in the future. For now, I will just work with the original data.
 
 Exploratory Analysis
 ====================
@@ -277,7 +358,7 @@ Exploratory Analysis
 Data and library import
 -----------------------
 
-Here, I run an exploratory analysis to see what can be inferred from the data. For this, I will be using the processed data as it was explained before. Some more details can be found in the preprocessing code provided in the file `PreliminaryInsepction.R`.
+Here, I will run an exploratory analysis to see what can be inferred from the data. For this, I will be using the processed data as it was explained before. Some more details can be found in the preprocessing code provided in the file `PreliminaryInsepction.R`.
 
 ``` r
 rm(list = ls())
@@ -297,7 +378,7 @@ proteins2  <- readRDS("Data/protcleaned.rds")
 Differentially variable genes
 -----------------------------
 
-As we discussed in the previous section, the range of (2,3) seems like a proper threshold for subsetting variable genes. Here, we select the lower bound to be as inclusive as possible in the analysis
+As we discussed in the previous section, the range of (2,3) seems like a proper threshold for subsetting variable genes. Here, we select the lower bound to be as inclusive as possible in the analysis.
 
 ``` r
 vars        <- apply(expression, 1, var)
@@ -307,7 +388,7 @@ geneList    <- (rownames(expression1))
 deGenes     <- (rownames(expression2))
 ```
 
-For enrichment analysis, we create appropriate translation lists of variable genes.
+For enrichment analysis, we create appropriate translation lists of variable genes and the universe of genes.
 
 ``` r
 set.seed(1)
@@ -338,7 +419,7 @@ GO enrichment analysis provides too many terms and does not necessarily give a c
 #  head(ego)
 ```
 
-Instead of GO enrichment analysis I use a enrichment analysis on KEGG pathways to get a more focused interpretations. For pathway analysis, I use my in-house methodology, CADIA.
+Instead of GO enrichment analysis, I will use an enrichment analysis of KEGG pathways to get more focused interpretations. For pathway analysis, I use my in-house methodology, CADIA.
 
 ``` r
 ##  network based analysis on KEGG pathways using CADIA
@@ -365,9 +446,9 @@ cadia.res
     ## 10 Amphetamine addiction                  05031 
     ## # … with 13 more rows
 
-CADIA uniquely identifies enrichment of a number of pathways including Wnt Signaling,and PI3K-Akt signaling pathway.
+CADIA uniquely identifies enrichment of a number of pathways including Wnt Signaling,and PI3K-Akt signaling pathway which are associated with signaling dysregulations in cancer. The method also detects a range of other cancer-related pathways such as ECM-receptro interactions and cytokine-cytokine receptor interactions.
 
-Moving on to proteins analysis. First, I will load a list of immune proteins. As downloaded form AmiGO.
+Moving on to proteins analysis. First, I will load a list of immune proteins and align them with the experimental data. The list of the immune proteins were downloaded form AmiGO portal.
 
 ``` r
     # Immunoproteins
@@ -380,7 +461,7 @@ imm.prots.all     <- bitr(imm.prot, fromType = "SYMBOL",
                         OrgDb = org.Hs.eg.db)
 ```
 
-Aligning the two pieces of data using the immunoproteins.
+Aligning the two pieces of data using the immunoproteins. I will create two sets of data that have the same list of gene/proteins and the same list of the samples.
 
 ``` r
 mRNA.norm <- expression2[intersect(imm.prot2, rownames(expression2)),]
@@ -392,7 +473,7 @@ prot.norm <- prot.norm[,intersect(colnames(proteins2),
                                   colnames(expression2))]
 ```
 
-Correlation Analysis
+Just as quality control and inspection step, I will investigate the correlation between the proteins and mRNAs expressions. For correlation analysis, I will use the peasorn method that is sensitive to the magnitude of the underlying values. I will use the p-value for the correlation test to identify the confidence in the coefficient.
 
 ``` r
 prot.mRNA.cors <- sapply(1:nrow(mRNA.norm), function(X){
@@ -411,9 +492,9 @@ prot.mRNA.pvals <- sapply(1:nrow(mRNA.norm), function(X){
 plotDensities(prot.mRNA.cors)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-24-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-28-1.png)
 
-The correlation plot shows the distribution of correlation coefficients, most of which is positive. The negative ones are perhaps by random. So we will make sure we filter protein/mRNA associations that are not statistically supported by the correlation (FDR &lt; 0.005).
+The correlation plot shows the distribution of correlation coefficients, most of which are positive. The negative ones are perhaps by random. So we will make sure we filter protein/mRNA associations that are not statistically supported by the correlation (FDR &lt; 0.005).
 
 ``` r
 nrow(mRNA.norm)
@@ -427,14 +508,14 @@ ncol(mRNA.norm)
 
     ## [1] 74
 
-We have 163 mRNA and proteins signals are variable and consistent between the two datasets. This is acroos 74 samples. So let's put some quality criteria on the correlations.
+We have 163 variable mRNA and proteins signals shared between the two datasets. This is across 74 samples. So let's use the quality criteria on the correlations.
 
 ``` r
 prot.mRNA.fdr <- p.adjust(prot.mRNA.pvals)
 plotDensities(prot.mRNA.cors[prot.mRNA.fdr < 0.005])
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-26-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-30-1.png)
 
 ``` r
 length(prot.mRNA.cors[prot.mRNA.fdr < 0.005])
@@ -442,7 +523,7 @@ length(prot.mRNA.cors[prot.mRNA.fdr < 0.005])
 
     ## [1] 113
 
-For 147 of the genes we have a consistent positive correlation Let's just work on these. We will also filter out the ones with correlations smaller than 0.4.
+For 113 of the genes, we have a consistent positive correlation. So, I will work on these for the rest of the analysis. We will also filter out the ones with correlations smaller than 0.4.
 
 ``` r
 mRNA.filtered <- mRNA.norm[prot.mRNA.fdr < 0.005 & prot.mRNA.cors > 0.4,]
@@ -452,10 +533,10 @@ nrow(mRNA.filtered)
 
     ## [1] 113
 
-Cluster analysis.
------------------
+Cluster analysis
+----------------
 
-It is interesting to find what suptypes exist in the data and what biological charachteristics they show. For this, I will start running model based clustering ysing Gaussian Mixture Models which well developed and implemented in the `mclust` package.
+It is interesting to find what subtypes exist in the data and what biological charachteristics they show. For this, I will start running model-based clustering using Gaussian Mixture Models. GMMs are well developed and implemented in the `mclust` package.
 
 First, let's identify the number of different clusters using different prior assumptions for clustering. We evaluate the clustering quality and method using Bayesian Information Criterion (BIC).
 
@@ -466,7 +547,7 @@ BIC <- mclustBIC(t(mRNA.filtered))
 plot(BIC)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-28-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-32-1.png)
 
 ``` r
 summary(BIC)
@@ -482,7 +563,7 @@ BIC <- mclustBIC(t(prot.filtered))
 plot(BIC)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-28-2.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-32-2.png)
 
 ``` r
 summary(BIC)
@@ -493,7 +574,7 @@ summary(BIC)
     ## BIC      -30541.66 -30594.40178 -30638.87153
     ## BIC diff      0.00    -52.73847    -97.20821
 
-The best model for mRNA data according to BIC is four cluster with "VEI" model.
+The best model for mRNA data according to BIC is four cluster with "VEI" model which gives the highest separations among the subtypes.
 
 ``` r
 library(mclust)
@@ -504,7 +585,7 @@ BIC <- mclustBIC(t(prot.filtered))
 plot(BIC)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-29-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-33-1.png)
 
 ``` r
 summary(BIC)
@@ -515,16 +596,16 @@ summary(BIC)
     ## BIC      -30541.66 -30594.40178 -30638.87153
     ## BIC diff      0.00    -52.73847    -97.20821
 
-The best model for protein data according to BIC is four cluster with "VEI" model.
+The best model for protein data according to BIC is also four cluster with "VEI" model.
 
-Now we use this information to classify the samples.
+I will use this information to classify the samples.
 
 ``` r
 mod.mRNA <- Mclust(t(mRNA.filtered), G = 4, modelName = "VEI")
 mod.prot <- Mclust(t(prot.filtered), G = 4, modelName = "VEI")
 ```
 
-Moving on to visualization. We also classify the mRNA expressions according to agglomerative clustering.
+Moving on to visualization. The model-based clustering was applied to the samples. I will also classify the mRNA expressions according to an agglomerative hierarchical clustering.
 
 ``` r
 library(RColorBrewer)
@@ -559,9 +640,9 @@ hc <- hclust(d,method = "complete")
 plot(hc,labels=rownames(mRNA.filtered),cex=0.5)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-31-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-35-1.png)
 
-Three clusteris is a suitable choice for row vectors (expressions) so lets just do the rest of coloring and heatmap.
+In hierarchical clustering, three subgroups is a suitable choice for rows (expressions). The following is the coloring and heatmap visualization.
 
 ``` r
     hclusters  <- cutree(hc, h=80)
@@ -580,9 +661,9 @@ heatmap3(mRNA.mat,Colv = NA,Rowv = NA,showColDendro = F,showRowDendro = F,
           ColSideColors=my_col)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-32-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-36-1.png)
 
-Interpreting the cluster functions
+It is interesting to see the underlying associated functions of the row clusters. I will use CADIA again to interpret the cluster functions.
 
 ``` r
 clust1 <- names(hclusters[hclusters ==1])
@@ -654,9 +735,9 @@ head(cadia.res3,5)
     ## 5 Pros… 89    294   5.52e-2 2        0.0244         0.0102   0.242  0.607 
     ## # … with 1 more variable: KEGGID <chr>
 
-The three genes cluster repsent different functionalities. Cluster 1 is associated with T cell receptor pathway and Th17 cell differentiation. Cluster 2 is associated with several signaling pathways including Wnt, Calcium, Phospolipase D, cAMP. Cluster 3 is associated with Focal adhesion. Endocrine resistance, ECM-receptor interaction
+The three genes cluster repsent different functionalities. Cluster 1 (Red) is associated with T cell receptor pathway and Th17 cell differentiation. Cluster 2 (Blue) is associated with several signaling pathways including Wnt, Calcium, Phospolipase D, cAMP. Cluster 3 (Green) is associated with Focal adhesion. Endocrine resistance, ECM-receptor interaction. Looking back at the sample classes we can identify particular tumor subtypes that are associated with individual functions.
 
-A similar analysis on the protein data identifies two row clusters for proteins levels. The larger cluster associates with several pathways including Wnt signaling. For space limitations, we only provide the end image here. Interested readers may investigate the code `ModelBasedProtCluster.R`.
+A similar analysis on the protein data identifies two row clusters for proteins levels. The larger cluster associates with several pathways including Wnt signaling. For space limitations, we only provide the end-product image here. Interested readers may investigate the code `ModelBasedProtCluster.R`.
 
 <img src="images/Model-basedProteinCluster.jpg" alt="Clustering of Protein Levels and Samples" width="75%" />
 <p class="caption">
@@ -666,9 +747,9 @@ Clustering of Protein Levels and Samples
 Running WGCNA Analysis
 ----------------------
 
-Just to take an sligthly alternative approach, we use `WGNCA` library to determing the clusters in the correlation network of the mRNA/protein expression. The file `WGCNArunner.R` contains the functions that find the optimal values for the analysis and report the resutls. In this case, I only show the analysis for Protein data. For mRNA data, I will provide the results and the code is accessible via `WGCNAModeling.R`.
+To take an sligthly alternative approach, I will use `WGNCA` library to determing the row clusters by using the correlation network of the mRNA/protein expression. The file `WGCNArunner.R` contains the functions that find the optimal values for the analysis and report the resutls. In this case, I only show the analysis for Protein data. For mRNA data, I will provide the results and the code is accessible via `WGCNAModeling.R`.
 
-I used WGCNA to cluster the rows, and for column clusters, I used the resutls of model-based clustering from `mclust`. Same applies to both protein and mRNA data.
+I used WGCNA to cluster the rows. For column clusters, I used the resutls of model-based clustering from `mclust`. Same analysis applies to both protein and mRNA data.
 
 ``` r
 rm(list= ls())
@@ -687,7 +768,7 @@ mod.mRNA      <- readRDS("Data/modmRNA.rds")
 imm.prots.all <- readRDS("Data/immprotsall.rds")
 
 
-source("WGCNArunner.R")
+source("Codes/WGCNArunner.R")
 
 ### For protein data 
 dynamicColors <- wgcna.reporter(prot.filtered,"prot")
@@ -703,14 +784,17 @@ col.order         <- unlist(tapply(1:ncol((prot.filtered)),
                                    as.factor(dynamic.col.color),I))
 
 m <- m[col.order,]
+```
 
-
+``` r
 heatmap3(t(m),col=coul,Rowv=NA,Colv=NA,scale=c("none"),
          RowSideColors=dynamicColors[module.order],
          ColSideColors=dynamic.col.color[col.order],
          ColSideLabs = "Sample Clusters",
          RowSideLabs = "Proteins Clusters")
 ```
+
+![](readme_files/figure-markdown_github/unnamed-chunk-40-1.png)
 
 Running CADIA to infer the associated pathways with the WGCNA modules.
 
@@ -797,16 +881,13 @@ cadia.res1
     ## 10 Olfa… 419   4238  1.73e-2 2        0.0494         0.00690  0.162  0.177 
     ## # … with 133 more rows, and 1 more variable: KEGGID <chr>
 
-The three genes clusters represent different functionalities.Cluster 1 (Grey) is associated with ECM Receptor interactions. Cluster 2's (turquoise) associations are weak. Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor.
+The three genes clusters represent different functionalities. Cluster 1 (Grey) is associated with ECM Receptor interactions. Cluster 2's (turquoise) associations are weak and do not show any particular biological functions. Cluster 3 (Blue) is associated with NOD-like receptor signaling and T cell receptor.
 
 Similarly, if we run WGCNA on the mRNA data, we get the following heatmap.
 
-<img src="images/mRNAClustersWGCNA.jpg" alt="WGCNA Clusters of Protein Levels and Model-Based Clusters of Samples" width="75%" />
-<p class="caption">
-WGCNA Clusters of Protein Levels and Model-Based Clusters of Samples
-</p>
+<img src="images/mRNAClustersWGCNA.jpg" width="75%" />
 
-In the above map, the rows represent mRNA expressions and the clusters associations are as following. Cluster 1 (Grey)is associated with ECM Receptor interactions. Cluster 2's associations are weak and unindentifiable (turquoise). Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor. Cluster 4 (brown) ECM-Receptor interaction and focal adhesion.
+In the above map, the rows represent mRNA expressions and the clusters associations are as following. Cluster 1 (Grey) is associated with ECM Receptor interactions. Cluster 2's associations are weak and unindentifiable (turquoise). Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor. Cluster 4 (brown) ECM-Receptor interaction and focal adhesion.
 
 Principal Component Analysis
 ----------------------------
@@ -819,7 +900,7 @@ It would be interesting to investigate the quality of model based clustering to 
     plot(mRNA.pca,type = "l")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-38-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-43-1.png)
 
 ``` r
 # The plot tells us after the 4th PC we can't get much  variance explained
@@ -835,7 +916,7 @@ library(ggbiplot)
         theme_bw()
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-38-2.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-43-2.png)
 
 ``` r
 ##  PCA on prot data
@@ -843,7 +924,7 @@ prot.pca <- prcomp(t(prot.filtered), center = TRUE, scale. = TRUE)
 plot(prot.pca,type = "l")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-38-3.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-43-3.png)
 
 ``` r
 # Similar to mRNA, the elbow happens arond 4th PC
@@ -860,9 +941,9 @@ ggbiplot(prot.pca , obs.scale = 1, var.scale =1 , var.axes = F,
     theme_bw()
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-38-4.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-43-4.png)
 
-The elbow methods tell us that 4 of the Principal Components should be informative enough for future applications. The separation of the samples by the predicted classes of the model based clustering seems acceptable even though we are only using two dimensions. In fact, it turns out that if we use a 3D visualizations the separation between the classes, even when applying the mRNA-dervied classes to the protein data, becomes clear. The following is the code for that. However, it is commented to the report document can be rendered.
+The elbow methods tell us that 4 of the Principal Components should be informative enough for future applications. The separation of the samples by the predicted classes of the model based clustering seems acceptable, even though, we are only using two dimensions. In fact, it turns out that if we use a 3D visualizations the separation between the classes becomes clear, even when applying the mRNA-dervied classes to the protein data. The following is the code for that. However, it is commented so that the report document can be rendered.
 
 ``` r
 #library("pca3d")
@@ -874,7 +955,7 @@ The elbow methods tell us that 4 of the Principal Components should be informati
 TP53 Analysis
 =============
 
-In the first part we showed that our best initial guess for supgroups in the mutation data is to go with the TP53 mutations. So here, we run a differential expression analysis based on contrasting the samples that have TP53 mutations versus the ones without TP53 mutations.
+In the first part, I showed that our best initial guess for subgroups in the mutation data is to go with the TP53 mutations. So here, I will run a differential expression analysis based on contrasting the samples that have TP53 mutations versus the ones without TP53 mutations.
 
 ``` r
 rm(list = ls())
@@ -943,7 +1024,7 @@ nrow(tT.deGenes)
 
     ## [1] 308
 
-Our criteria for differential expression analysis is adjusted p-value of difference being less than 0.005 and fold-change magnitude greater than 1. I used Benjamini-Hochberg method for adjusting the p-values. This produces 308 DEG associated with TP53 mutation. Now we move on with enrichment analysis of the differential expressions.
+Our criteria for differential expression analysis is having an adjusted p-value of difference less than 0.005 and fold-change magnitude greater than 1. I used Benjamini-Hochberg method for adjusting the p-values. This produces 308 DEG associated with TP53 mutation. Now we move on with enrichment analysis of the differential expressions.
 
 ``` r
 geneList <- (rownames(tT))
@@ -995,7 +1076,7 @@ cyt.imm  <- union(cyt.prot,imm.prot)
 cyt.imm2 <- intersect(cyt.imm, rownames(proteins2))  
 ```
 
-Here, I will be aligning the datasets to have the same samples, and limit them to only cytokines and immunoproteins.
+Here, I will be aligning the datasets to have the same samples, and limit them to only contain cytokines and immunoproteins.
 
 ``` r
 mRNA.norm <- expression2[intersect(cyt.imm2, rownames(tT.deGenes)),]
@@ -1033,7 +1114,7 @@ prot.fitlered <- prot.norm[prot.mRNA.fdr < 0.05,]
 
 I will only use those genes and proteins whose respective values correlate with each other (FDR &lt;0.05, n =17).
 
-Just a quick model based clustering. Again, the number of clusters and the models are determined using BIC. For both of proteins and mRNAs data we have 3 clusters is the optimal. I also cluster the row values corresponding to proteins/mRNAs using distance based clustering.
+Just a quick model-based clustering. Again, the number of clusters and the models are determined using BIC. For both of proteins and mRNAs data we have 3 clusters is the optimal. I also cluster the row values corresponding to proteins/mRNAs using distance based clustering.
 
 ``` r
 library(mclust)
@@ -1076,7 +1157,7 @@ hc <- hclust(d,method = "complete")
 plot(hc,labels=rownames(mRNA.fitlered),cex=0.5)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-45-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-50-1.png)
 
 ``` r
 # Three seems suitable so lets just do the rest of coloring and heatmap   
@@ -1096,7 +1177,7 @@ heatmap3(mRNA.mat,Colv = NA,Rowv = NA,showColDendro = F,showRowDendro = F,
          ColSideColors=my_col)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-45-2.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-50-2.png)
 
 In the three clusters of the samples, there is strong confirmation between clusters 2 of proteins and 2 of mRNAs.
 
@@ -1107,13 +1188,9 @@ seq.pca <- prcomp(t(mRNA.fitlered), center = TRUE, scale. = TRUE)
 plot(seq.pca,type = "l")
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-46-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-51-1.png)
 
 ``` r
-scoreTot <- seq.pca$x[,1:4]
-# Let's work on 4 PCs
-
-
 library(ggbiplot)
 set.seed(1)
  ggbiplot(seq.pca , obs.scale = 1, var.scale =1 , var.axes = F,
@@ -1121,7 +1198,7 @@ set.seed(1)
     geom_point(aes(shape = types ), size = 3) + theme_bw()
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-46-2.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-51-2.png)
 
 PCA at this stage does not show the distinction between the subgroups of mutations and clusters. Maybe higher dimentions would reveal some extra patterns.
 
@@ -1155,7 +1232,7 @@ ggnet2(prot.network, node.label = colnames(weightMat),
           legend.title=element_blank())
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-47-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-52-1.png)
 
 Moving on to extracting mRNA network. I will use the same parameters.
 
@@ -1177,7 +1254,7 @@ theme(legend.position="none",
       legend.title=element_blank())
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-48-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-53-1.png)
 
 As it shows, there are overlaps between the two networks. However, there are differences as well, which is expected because the nature of the two data differ. We will report the combined network. Also, I ran the genes at STRING DB to get the known or independently predicted interactions. There were 9 interactions returned from the STRING DB. The STRING DB table is stored in the `Data` folder.
 
@@ -1210,6 +1287,6 @@ ggnet2(comb.network,   label = TRUE, edge.size = "weights",
        edge.color = "weights",edge.lty = "lty",arrow.gap = 0.01915)
 ```
 
-![](readme_files/figure-markdown_github/unnamed-chunk-49-1.png)
+![](readme_files/figure-markdown_github/unnamed-chunk-54-1.png)
 
 GENIE3 discoveres 8 out of the 9 known interactions. The only one that is missing is highlighted in the dashed line. The rest of the network is novel and is subject to confirmation.
