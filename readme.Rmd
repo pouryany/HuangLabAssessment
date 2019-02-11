@@ -506,8 +506,8 @@ head(cadia.res3,5)
 
 A similar analysis on the protein data identifies two row clusters for proteins levels. The larger cluster associates with several pathways including Wnt signaling. For space limitations, we only provide the end image here. Interested readers may investigate the code ``ModelBasedProtCluster.R``. 
 
-```{r, echo=FALSE, fig.cap="Clustering of Protein Levels and Samples", out.width = '100%'}
-knitr::include_graphics("images/Model-basedProteinCluster.pdf")
+```{r, echo=FALSE, fig.cap="Clustering of Protein Levels and Samples", out.width = '75%'}
+knitr::include_graphics("images/Model-basedProteinCluster.jpg")
 ```
 
 
@@ -601,12 +601,12 @@ cadia.res3  <- CADIA::causalDisturbance(gene.clust3$ENTREZID,imm.prots.all$ENTRE
 cadia.res1
 ```
 
- The three genes cluster repsent different functionalities.Cluster 1 (Grey) is associated with ECM Receptor interactions.  Cluster 2's (turquoise) associations are weak. Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor.
+ The three genes clusters represent different functionalities.Cluster 1 (Grey) is associated with ECM Receptor interactions.  Cluster 2's (turquoise) associations are weak. Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor.
 
 
 Similarly, if we run WGCNA on the mRNA data, we get the following heatmap. 
 
-```{r, echo=FALSE, fig.cap="Clustering of Protein Levels and Samples", out.width = '75%'}
+```{r, echo=FALSE, fig.cap="WGCNA Clusters of Protein Levels and Model-Based Clusters of Samples", out.width = '75%'}
 knitr::include_graphics("images/mRNAClustersWGCNA.jpg")
 ```
 

@@ -658,7 +658,7 @@ The three genes cluster repsent different functionalities. Cluster 1 is associat
 
 A similar analysis on the protein data identifies two row clusters for proteins levels. The larger cluster associates with several pathways including Wnt signaling. For space limitations, we only provide the end image here. Interested readers may investigate the code `ModelBasedProtCluster.R`.
 
-<img src="images/Model-basedProteinCluster.pdf" alt="Clustering of Protein Levels and Samples" width="100%" />
+<img src="images/Model-basedProteinCluster.jpg" alt="Clustering of Protein Levels and Samples" width="75%" />
 <p class="caption">
 Clustering of Protein Levels and Samples
 </p>
@@ -797,13 +797,13 @@ cadia.res1
     ## 10 Olfa… 419   4238  1.73e-2 2        0.0494         0.00690  0.162  0.177 
     ## # … with 133 more rows, and 1 more variable: KEGGID <chr>
 
-The three genes cluster repsent different functionalities.Cluster 1 (Grey) is associated with ECM Receptor interactions. Cluster 2's (turquoise) associations are weak. Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor.
+The three genes clusters represent different functionalities.Cluster 1 (Grey) is associated with ECM Receptor interactions. Cluster 2's (turquoise) associations are weak. Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor.
 
 Similarly, if we run WGCNA on the mRNA data, we get the following heatmap.
 
-<img src="images/mRNAClustersWGCNA.jpg" alt="Clustering of Protein Levels and Samples" width="75%" />
+<img src="images/mRNAClustersWGCNA.jpg" alt="WGCNA Clusters of Protein Levels and Model-Based Clusters of Samples" width="75%" />
 <p class="caption">
-Clustering of Protein Levels and Samples
+WGCNA Clusters of Protein Levels and Model-Based Clusters of Samples
 </p>
 
 In the above map, the rows represent mRNA expressions and the clusters associations are as following. Cluster 1 (Grey)is associated with ECM Receptor interactions. Cluster 2's associations are weak and unindentifiable (turquoise). Cluster 3 (Blue) is associated with NOD-like receptor signaling,T cell receptor. Cluster 4 (brown) ECM-Receptor interaction and focal adhesion.
