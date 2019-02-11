@@ -4,7 +4,7 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(CADIA)
 library(dplyr)
-
+library(heatmap3)
 # Parsing and inspecting the Mutation, Expression, and Protein Data
 
 mutated    <- read.csv("Data/BRCA_MC3_SOMATIC_formatted_amino_acid.txt",
@@ -41,9 +41,10 @@ mutated <- data.matrix(mutated)
 # I am not sure where mutations happen together or correlate, but maybe clusters
 # together can bring some higher level descriptions.
 
-heatmap(mutated, Colv=F,scale ="none")
-d <- dist((mutated) )
-clusters <- hclust(d)
+heatmap3(mutated,scale ="none",distfun = function(x) as.dist(1 - cor(t(x), method = "spearman")),
+         method ="ward.D2")
+d <- as.dist(1 - cor((mutated), method = "spearman"))
+clusters <- hclust(d,method ="ward.D2")
 plot(clusters,cex=0.5)
 # We can't get much out this heatmap the way it is
 
@@ -52,7 +53,7 @@ plot(clusters,cex=0.5)
 # mutated profiles later
 
 
-
+?cor
 # Parsing and inspecting the mRNA expression Data
 # Just inspecting the data distribution. We know that the data is normalized
 # So there shouldn't be any problems here. Distributions should align

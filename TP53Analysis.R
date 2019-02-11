@@ -1,4 +1,5 @@
 # Test case analyzing between TP53 profiles
+rm(list = ls())
 library(limma)
 
 # Parsing and inspecting the Mutation Data
@@ -112,7 +113,7 @@ intersect(cyt.prot, rownames(proteins2))
 cyt.imm <- union(cyt.prot,imm.prot)    
 sum(is.na(cyt.imm))
 
-cyt.imm2 <- intersect(cyt.imm, rownames(proteins3))  
+cyt.imm2 <- intersect(cyt.imm, rownames(proteins))  
 
 
 
@@ -264,38 +265,72 @@ set.seed(1)
  # Let's do state of the art link prediction
 
 library(GENIE3)
-
+library(GGally)
+library(sna)
+ 
 weightMat <- GENIE3(data.matrix(prot.fitlered))
-hist(weightMat)
+plotDensities(weightMat)
 weightMat[weightMat < 0.1] <- 0
 weightMat[weightMat > 0.1] <- 1
 
 
 
-library(GGally)
+
 apop.network1 <- network::as.network.matrix(weightMat)
 set.seed(2)
-prot.plot <- ggnet2(apop.network1, node.label = colnames(weightMat), arrow.size = 5,label.size = 5,label.trim = T,arrow.gap = 0.01915,
-                   mode = "fruchtermanreingold", layout.par = list(cell.jitter =0.001, niter = 1000 )) +
-    theme(legend.position="none",
+ggnet2(apop.network1, node.label = colnames(weightMat), 
+       arrow.size = 5,label.size = 5,label.trim = T,arrow.gap = 0.01915,
+        mode = "fruchtermanreingold", 
+       layout.par = list(cell.jitter =0.001, niter = 1000 )) +
+ theme(legend.position="none",
           legend.title=element_blank())
 
+ggsave("images/proteinNetworkGENIE3.pdf")
+
+weightMat2 <- GENIE3(data.matrix(mRNA.fitlered))
+hist(weightMat2)
+weightMat2[weightMat2 < 0.1] <- 0
+weightMat2[weightMat2 > 0.1] <- 1
 
 
-weightMat <- GENIE3(data.matrix(mRNA.fitlered))
-hist(weightMat)
-weightMat[weightMat < 0.1] <- 0
-weightMat[weightMat > 0.1] <- 1
 
-
-
-library(GGally)
-apop.network2 <- network::as.network.matrix(weightMat)
+apop.network2 <- network::as.network.matrix(weightMat2)
 set.seed(2)
-mRNA.plot <- ggnet2(apop.network2, node.label = colnames(weightMat), arrow.size = 5,label.size = 5,label.trim = T,arrow.gap = 0.01915,
-                    mode = "fruchtermanreingold", layout.par = list(cell.jitter =0.001, niter = 1000 )) +
-    theme(legend.position="none",
-          legend.title=element_blank())
+ggnet2(apop.network2, node.label = colnames(weightMat2), 
+       arrow.size = 5,label.size = 5,label.trim = T,arrow.gap = 0.01915,
+       mode = "fruchtermanreingold", layout.par = list(cell.jitter =0.001,
+                                                       niter = 1000 )) +
+theme(legend.position="none",
+      legend.title=element_blank())
+
+ggsave("images/mRNANetworkGENIE3.pdf")
 
 
-# Just adding later:  combined predicted networks. 
+
+weightMat3 <- weightMat2 + weightMat 
+
+weightMat3[weightMat3 >0 ] <- 1
+
+string.table <- read.csv("Data/string_interactions.tsv", stringsAsFactors = F, sep = "\t")
+string.table <- string.table[,c(1,2)]
+
+for ( i in 1:nrow(string.table)){
+     from <- string.table[1,i]
+     to   <- string.table[2,i]
+     weightMat3[from,to] <- weightMat3[from,to] + 2
+     weightMat3[to,from] <- weightMat3[to,from] + 2
+}
+
+
+apop.network3 <- network::as.network.matrix(weightMat3,
+                                            names.eval = "weights",
+                                            ignore.eval = FALSE)
+
+set.seed(2)
+network::set.edge.attribute(apop.network3, "lty", ifelse(apop.network3 %e% "weights" < 2, 1, 2))
+ggnet2(apop.network3,   label = TRUE, edge.size = "weights",
+       edge.color = "weights",edge.lty = "lty",arrow.gap = 0.01915)
+
+
+
+ # Just adding later:  combined predicted networks. 
