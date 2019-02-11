@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,fig.width=8, fig.height=6)
 ```
 
 ## Project overview
@@ -195,7 +195,7 @@ proteins3 <- prot.polish$residuals
 
 ```
 
-Not surprinsingly median polish seems to smooth data. We get better MA plot, less noisy. We also get more aligned boxplots. However, I am not sure of the consequences and the indications of this process. So, I will investigate that  some other day in the future. For now, I will just work with the original data. 
+Not surprinsingly median polish seems to smooth the data. We get a better MA plot, less noisy. We also get more aligned boxplots. However, I am not sure of the consequences and the indications of this process. So, I will investigate that  some other day in the future. For now, I will just work with the original data. 
 
 # Exploratory Analysis
 ## Data and library import
@@ -606,8 +606,8 @@ cadia.res1
 
 Similarly, if we run WGCNA on the mRNA data, we get the following heatmap. 
 
-```{r, echo=FALSE, fig.cap="Clustering of Protein Levels and Samples", out.width = '100%'}
-knitr::include_graphics("images/mRNAClustersWGCNA.pdf")
+```{r, echo=FALSE, fig.cap="Clustering of Protein Levels and Samples", out.width = '75%'}
+knitr::include_graphics("images/mRNAClustersWGCNA.jpg")
 ```
 
 

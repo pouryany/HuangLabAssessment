@@ -269,7 +269,7 @@ abline(h=0,col="red")
 proteins3 <- prot.polish$residuals
 ```
 
-Not surprinsingly median polish seems to smooth data. We get better MA plot, less noisy. We also get more aligned boxplots. However, I am not sure of the consequences and the indications of this process. So, I will investigate that some other day in the future. For now, I will just work with the original data.
+Not surprinsingly median polish seems to smooth the data. We get a better MA plot, less noisy. We also get more aligned boxplots. However, I am not sure of the consequences and the indications of this process. So, I will investigate that some other day in the future. For now, I will just work with the original data.
 
 Exploratory Analysis
 ====================
@@ -801,7 +801,7 @@ The three genes cluster repsent different functionalities.Cluster 1 (Grey) is as
 
 Similarly, if we run WGCNA on the mRNA data, we get the following heatmap.
 
-<img src="images/mRNAClustersWGCNA.pdf" alt="Clustering of Protein Levels and Samples" width="100%" />
+<img src="images/mRNAClustersWGCNA.jpg" alt="Clustering of Protein Levels and Samples" width="75%" />
 <p class="caption">
 Clustering of Protein Levels and Samples
 </p>
@@ -828,41 +828,6 @@ It would be interesting to investigate the quality of model based clustering to 
 # Let's work on 4 PCs
         
 library(ggbiplot)
-```
-
-    ## Loading required package: ggplot2
-
-    ## Loading required package: plyr
-
-    ## -------------------------------------------------------------------------
-
-    ## You have loaded plyr after dplyr - this is likely to cause problems.
-    ## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
-    ## library(plyr); library(dplyr)
-
-    ## -------------------------------------------------------------------------
-
-    ## 
-    ## Attaching package: 'plyr'
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     arrange, count, desc, failwith, id, mutate, rename, summarise,
-    ##     summarize
-
-    ## The following object is masked from 'package:IRanges':
-    ## 
-    ##     desc
-
-    ## The following object is masked from 'package:S4Vectors':
-    ## 
-    ##     rename
-
-    ## Loading required package: scales
-
-    ## Loading required package: grid
-
-``` r
     set.seed(1)
     ggbiplot(mRNA.pca , obs.scale = 1, var.scale =1 , var.axes = F,
                   ellipse = T,groups = as.factor(mod.mRNA$classification))+
